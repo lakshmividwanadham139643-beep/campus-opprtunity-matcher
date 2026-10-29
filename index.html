@@ -1,0 +1,797 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campus Opportunity Matcher</title>
+
+<style>
+:root {
+  --blue: #0d6efd;
+  --dark: #123b72;
+  --bg: #f4f8ff;
+  --text: #183153;
+  --muted: #64748b;
+  --border: #dce7f5;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+button, input, select { font: inherit; }
+button, a, select { cursor: pointer; }
+a { color: var(--blue); }
+button:focus-visible, input:focus-visible,
+select:focus-visible, a:focus-visible {
+  outline: 3px solid #8bbcff;
+  outline-offset: 2px;
+}
+header {
+  background: white;
+  border-bottom: 1px solid var(--border);
+  padding: 14px 5%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.brand {
+  font-size: 1.15rem;
+  font-weight: bold;
+  color: var(--dark);
+}
+nav { display: flex; gap: 18px; flex-wrap: wrap; }
+nav a { text-decoration: none; color: var(--dark); font-weight: bold; }
+nav a:hover { color: var(--blue); }
+
+main { max-width: 1200px; margin: auto; padding: 24px; }
+.hero {
+  padding: 44px;
+  border-radius: 20px;
+  background: linear-gradient(120deg, #dcecff, #fff);
+  border: 1px solid var(--border);
+}
+.eyebrow {
+  display: inline-block;
+  color: #0756b5;
+  background: #c9e2ff;
+  padding: 5px 12px;
+  border-radius: 30px;
+  font-size: .85rem;
+  font-weight: bold;
+}
+h1 { color: var(--dark); font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.15; margin: 16px 0; }
+.hero p { max-width: 650px; color: var(--muted); }
+.btn {
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 10px 15px;
+  background: white;
+  color: var(--dark);
+  font-weight: bold;
+  text-decoration: none;
+  display: inline-block;
+}
+.btn.primary { background: var(--blue); color: white; border-color: var(--blue); }
+.btn:hover { filter: brightness(.96); }
+.btn.danger { color: #b42318; background: #fff1f0; }
+
+section { margin-top: 32px; }
+h2 { color: var(--dark); margin: 0 0 6px; }
+.subtext { color: var(--muted); margin-top: 0; }
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+.stat, .card, .panel {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 4px 14px #123b7208;
+}
+.stat strong { display: block; font-size: 1.8rem; color: var(--blue); }
+.stat span { color: var(--muted); font-size: .9rem; }
+
+.panel { margin-top: 15px; }
+.search-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 10px;
+}
+input, select {
+  min-width: 0;
+  width: 100%;
+  padding: 11px;
+  border: 1px solid #cbd8e8;
+  border-radius: 9px;
+  background: white;
+  color: var(--text);
+}
+.filters {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 14px;
+}
+label { display: block; font-weight: bold; font-size: .9rem; margin-bottom: 5px; }
+.quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+.chip {
+  border: 1px solid var(--border);
+  background: #f2f7ff;
+  color: var(--dark);
+  padding: 8px 12px;
+  border-radius: 9px;
+}
+.chip.active { background: var(--blue); color: white; }
+
+.results-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 22px 0 12px;
+}
+.results-heading p { margin: 0; color: var(--muted); }
+
+.cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.card { display: flex; flex-direction: column; min-width: 0; }
+.card h3 { margin: 12px 0 6px; line-height: 1.35; }
+.card p { color: var(--muted); }
+.badge {
+  display: inline-block;
+  align-self: flex-start;
+  border-radius: 20px;
+  padding: 4px 10px;
+  background: #e3efff;
+  color: #0756b5;
+  font-size: .8rem;
+  font-weight: bold;
+}
+.badge-Scholarship { background: #e2f8ed; color: #16734c; }
+.badge-Hackathon { background: #f0e7ff; color: #703ac8; }
+.badge-Workshop { background: #fff0dd; color: #9a4b00; }
+.badge-Event { background: #ffe8f0; color: #ad2857; }
+.meta { font-size: .87rem; color: var(--muted); margin: 5px 0; }
+.skills { font-size: .9rem; margin-top: auto; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.actions button { flex: 1; }
+
+.notice {
+  background: #eaf4ff;
+  border: 1px solid #b9d8ff;
+  padding: 16px;
+  border-radius: 12px;
+  margin-top: 22px;
+  color: #234a78;
+}
+.notice p { margin: 4px 0 0; }
+
+.saved-list { display: grid; gap: 12px; }
+.saved-item {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+}
+.saved-item h3 { margin: 6px 0; }
+.empty {
+  text-align: center;
+  background: white;
+  padding: 28px;
+  border: 1px dashed #bdcfe4;
+  border-radius: 12px;
+  color: var(--muted);
+}
+footer {
+  margin-top: 30px;
+  background: var(--dark);
+  color: white;
+  padding: 25px;
+  text-align: center;
+}
+footer p { color: #d7e5f8; margin-bottom: 0; }
+
+dialog {
+  width: min(600px, calc(100% - 28px));
+  max-height: 85vh;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  color: var(--text);
+}
+dialog::backdrop { background: #0b234b99; }
+.dialog-top { display: flex; justify-content: space-between; gap: 12px; }
+.dialog-top h2 { margin-top: 12px; }
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 16px 0;
+}
+.detail {
+  background: #f2f7ff;
+  border-radius: 9px;
+  padding: 12px;
+  overflow-wrap: anywhere;
+}
+.detail small { display: block; color: var(--muted); }
+.toast {
+  position: fixed;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--dark);
+  color: white;
+  padding: 12px 18px;
+  border-radius: 9px;
+  box-shadow: 0 5px 20px #0002;
+}
+[hidden] { display: none !important; }
+
+@media (max-width: 900px) {
+  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  main { padding: 15px; }
+  header { padding: 14px; }
+  nav { gap: 12px; font-size: .9rem; }
+  .hero { padding: 25px 20px; }
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cards { grid-template-columns: 1fr; }
+  .search-row { grid-template-columns: 1fr 1fr; }
+  .search-row input { grid-column: 1 / -1; }
+  .filters, .detail-grid { grid-template-columns: 1fr; }
+  .saved-item { align-items: flex-start; flex-direction: column; }
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="brand">🎓 Campus Opportunity Matcher</div>
+  <nav aria-label="Main navigation">
+    <a href="#home">Home</a>
+    <a href="#opportunities">Opportunities</a>
+    <a href="#saved">Saved (<span id="navSaved">0</span>)</a>
+    <a href="#about">About</a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero" id="home">
+    <span class="eyebrow">Find your next opportunity</span>
+    <h1>Your next opportunity starts here.</h1>
+    <p>Explore internships, scholarships, hackathons, workshops, and college events in one place. Search, compare, and save opportunities that interest you.</p>
+    <a class="btn primary" href="#opportunities">Explore Opportunities →</a>
+  </section>
+
+  <section aria-labelledby="statsTitle">
+    <h2 id="statsTitle">Opportunity Overview</h2>
+    <p class="subtext">A summary of the sample listings in this demo.</p>
+    <div class="stats" id="stats"></div>
+  </section>
+
+  <section id="opportunities">
+    <h2>Explore Opportunities</h2>
+    <p class="subtext">Search by keyword, then narrow results using the filters.</p>
+
+    <div class="panel">
+      <form id="filterForm">
+        <div class="search-row">
+          <input id="search" type="search"
+            placeholder="Search title, skill, description, organizer…"
+            aria-label="Search opportunities">
+          <button class="btn primary" type="submit">Search</button>
+          <button class="btn" id="reset" type="button">Reset Filters</button>
+        </div>
+
+        <div class="filters">
+          <div>
+            <label for="category">Category</label>
+            <select id="category">
+              <option value="All">All Categories</option>
+              <option value="Internship">Internship</option>
+              <option value="Scholarship">Scholarship</option>
+              <option value="Hackathon">Hackathon</option>
+              <option value="Workshop">Workshop</option>
+              <option value="Event">College Event</option>
+            </select>
+          </div>
+          <div>
+            <label for="mode">Participation Mode</label>
+            <select id="mode">
+              <option value="All">All Modes</option>
+              <option value="Online">Online</option>
+              <option value="Offline">Offline</option>
+              <option value="Hybrid">Hybrid</option>
+            </select>
+          </div>
+        </div>
+      </form>
+
+      <div class="quick" aria-label="Quick category filters">
+        <button class="chip active" type="button" data-cat="All">All</button>
+        <button class="chip" type="button" data-cat="Internship">Internships</button>
+        <button class="chip" type="button" data-cat="Scholarship">Scholarships</button>
+        <button class="chip" type="button" data-cat="Hackathon">Hackathons</button>
+        <button class="chip" type="button" data-cat="Workshop">Workshops</button>
+        <button class="chip" type="button" data-cat="Event">College Events</button>
+      </div>
+    </div>
+
+    <div class="results-heading">
+      <p id="resultCount" aria-live="polite"></p>
+      <p>Sample listings only</p>
+    </div>
+
+    <div class="cards" id="cards"></div>
+    <div class="empty" id="noResults" hidden>
+      <h3>No opportunities found</h3>
+      Try a different keyword or reset your filters.
+    </div>
+
+    <aside class="notice">
+      <strong>ⓘ Demo-data disclaimer</strong>
+      <p>All nine entries on this website are sample data created for an academic project. Names, dates, eligibility details, organizers, and links may be fictional or unverified. This website does not fetch live opportunities. Always verify information with official organizers before applying or attending.</p>
+    </aside>
+  </section>
+
+  <section id="saved">
+    <h2>Saved Opportunities (<span id="savedCount">0</span>)</h2>
+    <p class="subtext">Your favourites are stored in this browser.</p>
+    <div class="saved-list" id="savedList"></div>
+    <div class="empty" id="noSaved">
+      <h3>No favourites saved yet</h3>
+      Choose Save on any opportunity to add it here.
+    </div>
+  </section>
+</main>
+
+<footer id="about">
+  <strong>🎓 Campus Opportunity Matcher</strong>
+  <p>More opportunities. A brighter future.</p>
+  <p>Academic demo project · No live listings or official endorsements.</p>
+</footer>
+
+<dialog id="details">
+  <div class="dialog-top">
+    <div>
+      <span class="badge" id="detailCategory"></span>
+      <h2 id="detailTitle"></h2>
+    </div>
+    <button class="btn" id="closeTop" type="button" aria-label="Close dialog">✕</button>
+  </div>
+  <p id="detailDescription"></p>
+  <div class="detail-grid" id="detailGrid"></div>
+  <p><strong>Skills / Interests:</strong> <span id="detailSkills"></span></p>
+  <p><strong>Example link:</strong> <span id="detailLinkText"></span></p>
+  <div class="actions">
+    <button class="btn primary" id="detailSave" type="button">♡ Save Favourite</button>
+    <a class="btn" id="detailLink" href="https://example.com/"
+       target="_blank" rel="noopener noreferrer">Open Example Link ↗</a>
+    <button class="btn" id="closeBottom" type="button">Close</button>
+  </div>
+  <p class="subtext">Demo content only. Confirm information with the official organizer.</p>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+"use strict";
+
+// Sample data: all entries are for demonstration, not verified listings.
+const opportunities = [
+  {
+    id: "o1", title: "Frontend Development Internship",
+    category: "Internship",
+    description: "Practise building accessible web pages and interactive user interfaces.",
+    organizer: "TechSphere Demo", skills: ["HTML", "CSS", "JavaScript"],
+    date: "Demo date: 30 May 2027", mode: "Online",
+    location: "Remote (demo)",
+    eligibility: "Illustrative entry for undergraduate students interested in web development.",
+    link: "https://example.com/"
+  },
+  {
+    id: "o2", title: "Merit Scholarship Information",
+    category: "Scholarship",
+    description: "A sample listing demonstrating how scholarship information may be displayed.",
+    organizer: "Student Support Demo", skills: ["Academic performance", "Documentation"],
+    date: "Demo date: 15 June 2027", mode: "Hybrid",
+    location: "Campus / online (demo)",
+    eligibility: "Sample criteria only. Check a real provider's official rules.",
+    link: "https://example.com/"
+  },
+  {
+    id: "o3", title: "Student Innovation Hackathon",
+    category: "Hackathon",
+    description: "Explore a sample team challenge focused on practical student problems.",
+    organizer: "CodeVerse Demo", skills: ["Problem solving", "JavaScript", "Teamwork"],
+    date: "Demo date: 25 May 2027", mode: "Online",
+    location: "Online (demo)",
+    eligibility: "Illustrative college-student listing; actual rules are not provided.",
+    link: "https://example.com/"
+  },
+  {
+    id: "o4", title: "AI Fundamentals Workshop",
+    category: "Workshop",
+    description: "An example beginner workshop introducing AI concepts and simple applications.",
+    organizer: "LearnHub Demo", skills: ["Python", "AI basics", "Curiosity"],
+    date: "Demo date: 20 May 2027", mode: "Offline",
+    location: "Demo campus room",
+    eligibility: "Sample workshop details. Verify any real event with its organizer.",
+    link: "https://example.com/"
+  },
+  {
+    id: "o5", title: "Campus Coding Day",
+    category: "Event",
+    description: "A sample campus event featuring coding activities and student project sharing.",
+    organizer: "Campus Activities Demo", skills: ["Programming", "Collaboration"],
+    date: "Demo date: 5 June 2027", mode: "Offline",
+    location: "Demo college auditorium",
+    eligibility: "Sample entry; this is not a real event announcement.",
+    link: "https://example.com/"
+  },
+  {
+    id: "o6", title: "Python Automation Internship",
+    category: "Internship",
+    description: "Practise Python scripts and basic automation tasks in this sample listing.",
+    organizer: "ByteBridge Demo", skills: ["Python", "Problem solving", "Git"],
+    date: "Demo date: 10 June 2027", mode: "Hybrid",
+    location: "Remote / demo office",
+    eligibility: "Illustrative undergraduate opportunity; eligibility is unverified.",
+    link: "https://example.com/"
+  },
+  {
+    id: "o7", title: "Women in Technology Scholarship Demo",
+    category: "Scholarship",
+    description: "A sample targeted scholarship entry showing how key information can be presented.",
+    organizer: "FutureTech Demo", skills: ["Academic goals", "Technology"],
+    date: "Demo date: 30 June 2027", mode: "Online",
+    location: "Online (demo)",
+    eligibility: "Fictional sample content, not a real scholarship announcement.",
+    link: "https://example.com/"
+  },
+  {
+    id: "o8", title: "UI/UX Design Sprint",
+    category: "Hackathon",
+    description: "Create a simple prototype with a team and solve a sample user-experience problem.",
+    organizer: "DesignLab Demo", skills: ["Wireframing", "UI/UX", "Teamwork"],
+    date: "Demo date: 18 June 2027", mode: "Hybrid",
+    location: "Campus / online (demo)",
+    eligibility: "Illustrative design challenge; actual organizer rules are not provided.",
+    link: "https://example.com/"
+  },
+  {
+    id: "o9", title: "Resume and Interview Skills Session",
+    category: "Workshop",
+    description: "Learn how to organise a resume, explain projects, and practise interview answers.",
+    organizer: "Career Ready Demo", skills: ["Communication", "Resume writing"],
+    date: "Demo date: 12 June 2027", mode: "Online",
+    location: "Online (demo)",
+    eligibility: "Sample learning session; no real registration is available.",
+    link: "https://example.com/"
+  }
+];
+
+const STORAGE_KEY = "campusMatcherFavourites";
+const $ = id => document.getElementById(id);
+let favourites = readFavourites();
+let activeId = null;
+let toastTimer;
+
+// Load valid favourite IDs safely from browser storage.
+function readFavourites() {
+  try {
+    const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    if (!Array.isArray(data)) return [];
+    const validIds = new Set(opportunities.map(item => item.id));
+    return [...new Set(data.filter(id =>
+      typeof id === "string" && validIds.has(id)
+    ))];
+  } catch {
+    return [];
+  }
+}
+
+// Save favourites and handle browsers where storage is unavailable.
+function persistFavourites() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(favourites));
+  } catch {
+    notify("Browser storage is unavailable. Favourites may not persist.");
+  }
+}
+
+// Escape text before inserting it into HTML.
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, ch => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;",
+    '"': "&quot;", "'": "&#39;"
+  })[ch]);
+}
+
+// Only allow safe HTTPS links for the example listings.
+function safeLink(value) {
+  try {
+    const url = new URL(value);
+    if (url.protocol === "https:" &&
+        (url.hostname === "example.com" ||
+         url.hostname.endsWith(".example.com"))) {
+      return url.href;
+    }
+  } catch {}
+  return "https://example.com/";
+}
+
+function categoryCount(category) {
+  return opportunities.filter(item => item.category === category).length;
+}
+
+// Show summary statistics based on the full dataset.
+function renderStats() {
+  const stats = [
+    ["Total Opportunities", opportunities.length],
+    ["Internships", categoryCount("Internship")],
+    ["Scholarships", categoryCount("Scholarship")],
+    ["Hackathons", categoryCount("Hackathon")],
+    ["Workshops", categoryCount("Workshop")],
+    ["College Events", categoryCount("Event")],
+    ["Saved Favourites", favourites.length]
+  ];
+
+  $("stats").innerHTML = stats.map(([label, count]) => `
+    <article class="stat">
+      <strong>${count}</strong>
+      <span>${escapeHTML(label)}</span>
+    </article>
+  `).join("");
+
+  $("navSaved").textContent = favourites.length;
+  $("savedCount").textContent = favourites.length;
+}
+
+// Combine keyword, category, and mode filters.
+function getFiltered() {
+  const keyword = $("search").value.trim().toLowerCase();
+  const category = $("category").value;
+  const mode = $("mode").value;
+
+  return opportunities.filter(item => {
+    const searchable = [
+      item.title, item.category, item.description,
+      item.organizer, item.skills.join(" "), item.mode,
+      item.location, item.eligibility
+    ].join(" ").toLowerCase();
+
+    return (!keyword || searchable.includes(keyword)) &&
+      (category === "All" || item.category === category) &&
+      (mode === "All" || item.mode === mode);
+  });
+}
+
+// Build one opportunity card.
+function cardHTML(item) {
+  const saved = favourites.includes(item.id);
+  return `
+    <article class="card">
+      <span class="badge badge-${escapeHTML(item.category)}">
+        ${escapeHTML(item.category)}
+      </span>
+      <h3>${escapeHTML(item.title)}</h3>
+      <p>${escapeHTML(item.description)}</p>
+      <div class="meta">♙ Organizer: ${escapeHTML(item.organizer)}</div>
+      <div class="meta">▣ Date: ${escapeHTML(item.date)}</div>
+      <div class="meta">◉ Mode: ${escapeHTML(item.mode)}</div>
+      <p class="skills"><strong>Skills:</strong>
+        ${escapeHTML(item.skills.join(", "))}
+      </p>
+      <div class="actions">
+        <button class="btn" data-action="details" data-id="${item.id}">
+          View Details
+        </button>
+        <button class="btn ${saved ? "danger" : "primary"}"
+          data-action="toggle" data-id="${item.id}"
+          aria-pressed="${saved}">
+          ${saved ? "♥ Saved" : "♡ Save"}
+        </button>
+      </div>
+    </article>
+  `;
+}
+
+// Render the filtered opportunity list.
+function renderCards() {
+  const items = getFiltered();
+  $("cards").innerHTML = items.map(cardHTML).join("");
+  $("resultCount").textContent =
+    `Showing ${items.length} of ${opportunities.length} demo opportunities`;
+  $("noResults").hidden = items.length > 0;
+
+  document.querySelectorAll("[data-cat]").forEach(button => {
+    const active = button.dataset.cat === $("category").value;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+}
+
+// Render the user's saved favourites.
+function renderSaved() {
+  const items = opportunities.filter(item => favourites.includes(item.id));
+  $("savedList").innerHTML = items.map(item => `
+    <article class="saved-item">
+      <div>
+        <span class="badge badge-${escapeHTML(item.category)}">
+          ${escapeHTML(item.category)}
+        </span>
+        <h3>${escapeHTML(item.title)}</h3>
+        <div class="meta">${escapeHTML(item.mode)} ·
+          ${escapeHTML(item.date)} · ${escapeHTML(item.organizer)}
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn" data-action="details" data-id="${item.id}">
+          View Details
+        </button>
+        <button class="btn danger" data-action="remove" data-id="${item.id}">
+          Remove
+        </button>
+      </div>
+    </article>
+  `).join("");
+  $("noSaved").hidden = items.length > 0;
+}
+
+function renderAll() {
+  renderStats();
+  renderCards();
+  renderSaved();
+}
+
+// Add or remove an opportunity from favourites.
+function toggleFavourite(id) {
+  const item = opportunities.find(op => op.id === id);
+  if (!item) return;
+
+  if (favourites.includes(id)) {
+    favourites = favourites.filter(savedId => savedId !== id);
+    notify("Removed from favourites.");
+  } else {
+    favourites.push(id);
+    notify("Added to favourites.");
+  }
+
+  persistFavourites();
+  renderAll();
+  updateDetailSaveButton();
+}
+
+// Remove a favourite without deleting its opportunity.
+function removeFavourite(id) {
+  favourites = favourites.filter(savedId => savedId !== id);
+  persistFavourites();
+  renderAll();
+  updateDetailSaveButton();
+  notify("Favourite removed.");
+}
+
+// Open the details dialog for an opportunity.
+function openDetails(id) {
+  const item = opportunities.find(op => op.id === id);
+  if (!item) return;
+
+  activeId = id;
+  $("detailCategory").textContent = item.category;
+  $("detailCategory").className = `badge badge-${item.category}`;
+  $("detailTitle").textContent = item.title;
+  $("detailDescription").textContent = item.description;
+  $("detailSkills").textContent = item.skills.join(", ");
+  $("detailLinkText").textContent = safeLink(item.link);
+  $("detailLink").href = safeLink(item.link);
+
+  const details = [
+    ["Organizer", item.organizer],
+    ["Category", item.category],
+    ["Date / deadline", item.date],
+    ["Mode", item.mode],
+    ["Location", item.location],
+    ["Eligibility", item.eligibility]
+  ];
+
+  $("detailGrid").innerHTML = details.map(([label, value]) => `
+    <div class="detail">
+      <small>${escapeHTML(label)}</small>
+      <strong>${escapeHTML(value || "Not specified")}</strong>
+    </div>
+  `).join("");
+
+  updateDetailSaveButton();
+  $("details").showModal();
+}
+
+function updateDetailSaveButton() {
+  const saved = favourites.includes(activeId);
+  $("detailSave").textContent =
+    saved ? "♥ Remove Favourite" : "♡ Save Favourite";
+  $("detailSave").className = saved ? "btn danger" : "btn primary";
+}
+
+// Reset all filters without changing saved favourites.
+function resetFilters() {
+  $("search").value = "";
+  $("category").value = "All";
+  $("mode").value = "All";
+  renderCards();
+}
+
+// Display a temporary feedback message.
+function notify(message) {
+  $("toast").textContent = message;
+  $("toast").hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => $("toast").hidden = true, 2500);
+}
+
+// Use event delegation so buttons keep working after re-rendering.
+document.addEventListener("click", event => {
+  const actionButton = event.target.closest("[data-action]");
+  if (actionButton) {
+    const { action, id } = actionButton.dataset;
+    if (action === "details") openDetails(id);
+    if (action === "toggle") toggleFavourite(id);
+    if (action === "remove") removeFavourite(id);
+  }
+
+  const categoryButton = event.target.closest("[data-cat]");
+  if (categoryButton) {
+    $("category").value = categoryButton.dataset.cat;
+    renderCards();
+  }
+});
+
+// Update results as the user types or changes a filter.
+$("search").addEventListener("input", renderCards);
+$("category").addEventListener("change", renderCards);
+$("mode").addEventListener("change", renderCards);
+$("filterForm").addEventListener("submit", event => {
+  event.preventDefault();
+  renderCards();
+});
+$("reset").addEventListener("click", resetFilters);
+
+// Dialog controls.
+$("closeTop").addEventListener("click", () => $("details").close());
+$("closeBottom").addEventListener("click", () => $("details").close());
+$("detailSave").addEventListener("click", () => {
+  if (activeId) toggleFavourite(activeId);
+});
+
+// Close the dialog when the backdrop is clicked.
+$("details").addEventListener("click", event => {
+  if (event.target === $("details")) $("details").close();
+});
+
+// Draw the initial application.
+renderAll();
+</script>
+</body>
+</html>
